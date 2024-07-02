@@ -1,195 +1,3224 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.0",
+  "x-stoplight": {
+    "id": "u8qot82kkn5yf"
+  },
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
+    "title": "API",
+    "version": "1.0",
+    "termsOfService": "https://sajnat.se/licensavtal-for-anvandande-av-api/",
+    "contact": {
+      "email": "info@sajnat.se",
+      "url": "https://sajnat.se"
     },
-    "version": "1.0.0"
+    "description": "You can generate your API key from the control panel if your account is authorized to use our API. Go to https://app.sajnat.se/settings to create a token.",
+    "summary": "An easy signing service should have an easy API right?"
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
+      "url": "https://api.test.sajnat.se/api",
+      "description": "Test"
+    },
     {
-      "bearerAuth": []
+      "url": "https://api.sajnat.se/api",
+      "description": "Production"
     }
   ],
   "paths": {
-    "/plants": {
+    "/users/{uuid}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "uuid",
+          "in": "path",
+          "required": true
+        }
+      ],
       "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
+        "summary": "Get user",
+        "tags": [
+          "Users"
         ],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "User Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "$ref": "#/components/schemas/User"
+                },
+                "examples": {
+                  "Get User Alice Smith": {
+                    "value": {
+                      "id": 142,
+                      "firstName": "Alice",
+                      "lastName": "Smith",
+                      "email": "alice.smith@gmail.com",
+                      "dateOfBirth": "1997-10-31",
+                      "emailVerified": true,
+                      "signUpDate": "2019-08-24"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/404-not-found"
+          }
+        },
+        "operationId": "get-users-userId",
+        "description": "Retrieve the information of the user with the matching user ID.",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Update user",
+        "operationId": "patch-users-userUuid",
+        "responses": {
+          "200": {
+            "description": "User Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "examples": {
+                  "Updated User Rebecca Baker": {
+                    "value": {
+                      "uuid": "7599bdae-03ab-4a6f-a451-2bff263fcb17",
+                      "name": "Rebecca Baker",
+                      "first_name": "Rebecca",
+                      "last_name": "Baker",
+                      "email": "rebecca@gmail.com",
+                      "emailVerifiedAt": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User Not Found"
+          },
+          "409": {
+            "description": "Email Already Taken"
+          }
+        },
+        "description": "Update the information of an existing user.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "If a new email is given, the user's email verified property will be set to false."
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "sv",
+                      "en"
+                    ],
+                    "example": "en"
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "example": "America/Los_Angeles"
+                  }
+                }
+              },
+              "examples": {
+                "Update name": {
+                  "value": {
+                    "name": "Rebecca Vanheden"
+                  }
+                },
+                "Update Email": {
+                  "value": {
+                    "email": "rebecca@gmail.com"
+                  }
+                },
+                "Update email and locale": {
+                  "value": {
+                    "email": "new@email.com",
+                    "locale": "en"
+                  }
+                }
+              }
+            }
+          },
+          "description": "Patch user properties to update."
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "x-internal": true,
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      }
+    },
+    "/documents": {
+      "post": {
+        "summary": "Create document",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Document"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {}
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "operationId": "post-documents",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "NDA document to be signed"
+                  },
+                  "default_signature_type": {
+                    "type": "string",
+                    "enum": [
+                      "ses",
+                      "aes"
+                    ],
+                    "example": "ses",
+                    "default": "aes"
+                  }
+                },
+                "required": [
+                  "name",
+                  "default_signature_type"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "description": "Create a new document. All documents are created as `draft`. \n\n",
+        "tags": [
+          "Documents"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get documents",
+        "operationId": "get-documents",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Document"
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "type": "object",
+                          "properties": {
+                            "current_page": {
+                              "type": "number",
+                              "example": 1
+                            },
+                            "count": {
+                              "type": "number",
+                              "example": 10
+                            },
+                            "per_page": {
+                              "type": "number",
+                              "example": 10
+                            },
+                            "total": {
+                              "type": "number",
+                              "example": 20
+                            },
+                            "total_pages": {
+                              "type": "number",
+                              "example": 2
+                            },
+                            "links": {
+                              "type": "object",
+                              "properties": {
+                                "next": {
+                                  "type": "string",
+                                  "format": "url"
+                                },
+                                "previous": {
+                                  "type": "string",
+                                  "format": "url"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Get paginated result of all documents",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "idle",
+                "processing",
+                "sent",
+                "sealed"
+              ],
+              "example": "draft"
+            },
+            "in": "query",
+            "name": "filter[status]",
+            "description": "Filter documents by status, multiple statuses can be applied: `draft,sealed`",
+            "allowEmptyValue": true,
+            "explode": true,
+            "style": "pipeDelimited"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "created_at",
+                "sent_at",
+                "status",
+                "-name",
+                "-created_at",
+                "-sent_at",
+                "-status"
+              ],
+              "example": "name"
+            },
+            "in": "query",
+            "name": "sort",
+            "description": "Sort the results, prepend `-` if sorting ascending (`-name`)"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "default": "25"
+            },
+            "in": "query",
+            "name": "number",
+            "description": "Paginate by this number. Items per page.  (max 300 per page)"
+          },
+          {
+            "$ref": "#/components/parameters/Accept"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "filter[search]",
+            "description": "Search for documents"
+          }
+        ],
+        "tags": [
+          "Documents"
+        ]
+      },
+      "parameters": []
+    },
+    "/documents/{uuid}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": "uuid",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Get document",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Document"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "404": {
+            "$ref": "#/components/responses/404-not-found"
+          }
+        },
+        "operationId": "get-documents-uuid",
+        "description": "Get a specific document",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "tags": [
+          "Documents"
+        ]
+      },
+      "patch": {
+        "summary": "Update document",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Document"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/404-not-found"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "operationId": "patch-documents-uuid",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "description": "",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Document"
+              }
+            }
+          },
+          "description": "#### Tags\n\nThis endpoint takes an array of `tags` and syncs them to the document. If an empty `tags` array is sent, all tags will be removed."
+        },
+        "tags": [
+          "Documents"
+        ]
+      },
+      "delete": {
+        "summary": "Delete document",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200"
+          },
+          "404": {
+            "$ref": "#/components/responses/404-not-found"
+          }
+        },
+        "operationId": "delete-documents-uuid",
+        "tags": [
+          "Documents"
+        ],
+        "description": "When a document is deleted it deletes all related data as well. Even uploaded files and signed documents are eventually deleted. The original hash of the signed document is however always intact and saved, which enables the document to be validated at https://app.sajnat.se/validera",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/documents/{uuid}/upload": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "uuid",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "post": {
+        "summary": "Attach files to a document",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Media"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "operationId": "post-documents-uuid-upload",
+        "description": "Supported files types are `.pdf`, `.docx` and `doc`. \n\nMime types:\n\n* `application/pdf`\n* `application/vnd.openxmlformats-officedocument.wordprocessingml.document`\n* `application/msword`\n\nMax file size: 25MB\n\n\n**Note**: Uploads will only be accepted if the status of the document is either `draft` or `idle`.\n",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "collection": {
+                    "type": "string",
+                    "enum": [
+                      "original_agreement",
+                      "appendices"
+                    ],
+                    "example": "original_agreement"
+                  }
+                },
+                "required": [
+                  "file",
+                  "collection"
+                ]
+              },
+              "examples": {}
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "collection": {
+                    "type": "string",
+                    "default": "original_agreement",
+                    "example": "original_agreement",
+                    "enum": [
+                      "original_agreement",
+                      "appendices"
+                    ]
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "description": "Be sure to set a collection, this governs if the uploaded file is the original document or an appendix."
+        },
+        "tags": [
+          "Documents",
+          "Appendices"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          },
+          {
+            "$ref": "#/components/parameters/X-LOCALE"
+          }
+        ]
+      }
+    },
+    "/documents/{uuid}/process": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "uuid",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "post": {
+        "summary": "Process document",
+        "responses": {},
+        "operationId": "post-documents-uuid-process",
+        "description": "When a file has been uploaded (`collection: original_agreement`). After a file has been uploaded (and appendices where applicable) it needs to be processed by Sajnat. \n\nWhen a document is processed a few different things will happen:\n\n1. Files will be converted to PDF (if the uploaded file is a MS Word file for example)\n1. The original document will be merged with the uploaded appendices\n1. Page numbers will be written on every page\n1. Image representation will be created for all individual pages in the merged document\n1. The document `status` will go from `draft` to `idle`. \n\n**Note**: The document can only be processed if the status of the document is either `draft` or `idle`.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/Document"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Documents"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      }
+    },
+    "/documents/{uuid}/send": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "uuid",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "post": {
+        "summary": "Send signature requests",
+        "tags": [
+          "Documents"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "x-examples": {
+                    "example-1": {
+                      "code": "GEN-NOICE",
+                      "http_code": 200,
+                      "message": "Agreement has been sent"
+                    }
+                  },
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "GEN-NOICE",
+                      "readOnly": true
+                    },
+                    "http_code": {
+                      "type": "integer",
+                      "example": 200,
+                      "readOnly": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Document has been sent",
+                      "readOnly": true
+                    }
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Unexpected error",
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404-not-found"
+          }
+        },
+        "operationId": "post-documents-uuid-send",
+        "description": "If specific signing order the API will send out the signature requests in an ordered manner. If not, all signature requests attached to a document will be sent out at the same time.\n\nOnly documents with the status `idle` can be sent. After a successfull response, the document status will move to `sending` or `sent` respectively depending on wether specific sign order is activated or not.",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      }
+    },
+    "/user": {
+      "get": {
+        "summary": "Get authenticated user",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "operationId": "get-user",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "description": "Get the currently authenticated user",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      }
+    },
+    "/documents/{uuid}/subjects": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": "uuid",
+          "in": "path",
+          "required": true,
+          "description": "The uuid of the document"
+        }
+      ],
+      "get": {
+        "summary": "Get attached subjects",
+        "tags": [
+          "Subjects"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Subject"
+                      }
+                    }
+                  }
                 }
               }
             }
           }
-        }
+        },
+        "operationId": "get-documents-uuid-subjects",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
       },
       "post": {
-        "description": "Creates a new plant in the store",
+        "summary": "Create new subject",
+        "tags": [
+          "Subjects"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "datta": {
+                      "$ref": "#/components/schemas/Subject"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/404-not-found"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "operationId": "post-documents-uuid-subjects",
         "requestBody": {
-          "description": "Plant to add to the store",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "type": "object",
+                "x-examples": {
+                  "example-1": {
+                    "first_name": "Albin",
+                    "last_name": "Nilsson",
+                    "company": "Sajnat Sweden AB",
+                    "has_company": true,
+                    "email": "albin@sajnat.se",
+                    "signature_type_id": 2,
+                    "locale": "sv"
+                  }
+                },
+                "properties": {
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "company": {
+                    "type": "string"
+                  },
+                  "has_company": {
+                    "type": "boolean"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "signature_type": {
+                    "type": "string",
+                    "enum": [
+                      "ses",
+                      "aes"
+                    ],
+                    "example": "aes"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "example": "sv",
+                    "enum": [
+                      "sv",
+                      "en"
+                    ]
+                  }
+                },
+                "required": [
+                  "first_name",
+                  "last_name",
+                  "has_company",
+                  "email",
+                  "signature_type",
+                  "locale"
+                ]
+              },
+              "examples": {
+                "example-1": {
+                  "value": {
+                    "first_name": "Mållgan",
+                    "last_name": "Persson",
+                    "has_company": false,
+                    "email": "info@sajnat.se",
+                    "signature_type": "aes",
+                    "locale": "sv"
+                  }
+                }
               }
             }
           },
+          "description": "Some specific data needs to be posted when creating a new subject"
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "description": "Create a new subject and attach the subject to the document. \n\n***Note:** The email is unique for every document. A subject with the same email cannot be attached twice.*",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      }
+    },
+    "/documents/{documentUuid}/subjects/{subjectUuid}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "subjectUuid",
+          "in": "path",
           "required": true
         },
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "documentUuid",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "patch": {
+        "summary": "Update subject",
+        "tags": [
+          "Subjects"
+        ],
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Subject"
+                    }
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "unexpected error",
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404-not-found"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "operationId": "patch-subjects-uuid",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Subject"
+              }
+            }
+          },
+          "description": ""
+        },
+        "description": "Note that subjects can only be updated if the agreement is in the following states:\n* `draft`\n* `idle`",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get subject",
+        "tags": [
+          "Subjects"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Subject"
+                    }
+                  }
+                },
+                "examples": {}
               }
             }
+          },
+          "404": {
+            "$ref": "#/components/responses/404-not-found"
           }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+        },
+        "operationId": "get-subjects-uuid",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete subject",
+        "operationId": "delete-subjects-uuid",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404-not-found"
+          }
+        },
+        "description": "Note that subjects can only be deleted if the agreement is in the following states:\n* `draft`\n* `idle`\n\nThe attached signature request will also be deleted.",
+        "tags": [
+          "Subjects"
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      }
+    },
+    "/subjects/{uuid}/signature-request": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": "uuid",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Get signature request",
+        "tags": [
+          "Signature requests"
+        ],
+        "operationId": "get-subjects-uuid-signature-request",
+        "description": "Get signature request attached to a subject",
+        "security": [
+          {
+            "ApiKey": []
           }
         ],
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
+          "200": {
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/SignatureRequest"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/404-not-found"
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Update signature request",
+        "operationId": "patch-subjects-uuid-signature-request",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/SignatureRequest"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/404-not-found"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "tags": [
+          "Signature requests"
+        ],
+        "description": ">Note that signature requests can only be updated if the agreement is in the following states:\n>* `draft`\n>* `idle`\n> Also note that the body text (`options`) and the `locale` of the signature request still can be updated.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignatureRequest"
+              }
+            }
+          },
+          "description": ""
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      }
+    },
+    "/documents/{uuid}/subjects/set-order": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "uuid",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "post": {
+        "summary": "Set order of subjects",
+        "tags": [
+          "Subjects"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "operationId": "post-documents-uuid-subjects-set-order",
+        "description": "Sorting is updated by sending the pivot ids of the relation between the document and the subjects.\n\nThe pivot id included when fetching subjects via documents (`/documents/{uuid}/subjects`):\n\n```json\n{\n    \"uuid\": \"a210186b-9cdd-480e-ba32-d312a8f680f0\",\n    // ...\n    \"updated_at\": \"2022-06-23T09:27:29.000000Z\",\n    \"created_at\": \"2022-06-23T09:27:29.000000Z\",\n    \"pivot\": {\n        \"id\": 127 // <----\n    }\n}\n\n```",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pivots": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "x-examples": {
+                  "example-1": {
+                    "pivots": [
+                      127,
+                      126
+                    ]
+                  }
+                }
+              },
+              "examples": {
+                "example-1": {
+                  "value": {
+                    "pivots": [
+                      127,
+                      125
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "description": "The order of the pivot ids determine what the updated order should be"
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      }
+    },
+    "/documents/{uuid}/appendices/set-order": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "uuid",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "post": {
+        "summary": "Set order of appendices",
+        "tags": [
+          "Appendices"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200"
+          },
+          "404": {
+            "$ref": "#/components/responses/404-not-found"
+          }
+        },
+        "operationId": "post-documents-uuid-appendices-set-order",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "appendices": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "x-examples": {
+                  "example-1": {
+                    "appendices": [
+                      1727,
+                      1726
+                    ]
+                  }
+                }
+              },
+              "examples": {
+                "example-1": {
+                  "value": {
+                    "appendices": [
+                      22,
+                      21
+                    ]
+                  }
                 }
               }
             }
           }
+        },
+        "description": "Post ids of the attached appendices in the desired order.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ],
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/documents/{documentUuid}/appendices/{appendixUuid}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "documentUuid",
+          "in": "path",
+          "required": true,
+          "description": "Uuid of the document"
+        },
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "appendixUuid",
+          "in": "path",
+          "required": true,
+          "description": "Uuid of the appendix"
         }
+      ],
+      "delete": {
+        "summary": "Delete an appendix",
+        "tags": [
+          "Appendices"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200"
+          },
+          "404": {
+            "$ref": "#/components/responses/404-not-found"
+          }
+        },
+        "operationId": "delete-documents-documentUuid-appendices-appendixUuid",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      }
+    },
+    "/documents/{uuid}/download-link": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "uuid",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Get a download link",
+        "tags": [
+          "Documents"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Download-link"
+          },
+          "404": {
+            "$ref": "#/components/responses/404-not-found"
+          }
+        },
+        "operationId": "get-documents-uuid-download-link",
+        "description": "Returns a download link to the specified document. The link is valid for 24 hours.",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Accept"
+          }
+        ]
+      }
+    },
+    "/tenant/api-keys/": {
+      "post": {
+        "summary": "Create API key",
+        "tags": [
+          "API Keys"
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "token": {
+                          "type": "string",
+                          "description": "Token is only returned once in plain text. ",
+                          "readOnly": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          }
+        },
+        "operationId": "post-tenant-api-keys",
+        "description": "Create a new API key. Only users with admin privileges and accounts with API enabled can create API keys.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Key for integration X"
+                  }
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ]
+      },
+      "parameters": [],
+      "get": {
+        "summary": "Get API keys",
+        "operationId": "get-tenant-api-keys",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "x-examples": {
+                    "example-1": {
+                      "data": [
+                        {
+                          "id": 19,
+                          "tokenable_type": "App\\Models\\User",
+                          "tokenable_id": 55,
+                          "name": "Huffer",
+                          "abilities": [
+                            "api:full_access"
+                          ],
+                          "last_used_at": null,
+                          "created_at": "2022-06-28T09:55:12.000000Z",
+                          "updated_at": "2022-06-28T09:55:12.000000Z"
+                        },
+                        {
+                          "id": 20,
+                          "tokenable_type": "App\\Models\\User",
+                          "tokenable_id": 55,
+                          "name": "Fefpp",
+                          "abilities": [
+                            "api:full_access"
+                          ],
+                          "last_used_at": null,
+                          "created_at": "2022-06-28T12:31:47.000000Z",
+                          "updated_at": "2022-06-28T12:31:47.000000Z"
+                        }
+                      ]
+                    }
+                  },
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "abilities": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "last_used_at": {
+                            "type": [
+                              "null",
+                              "string"
+                            ]
+                          },
+                          "created_at": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Get all API keys",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "tags": [
+          "API Keys"
+        ],
+        "x-internal": true
+      }
+    },
+    "/tenant/api-keys/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "delete": {
+        "summary": "Delete API key",
+        "tags": [
+          "API Keys"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200"
+          }
+        },
+        "operationId": "delete-tenant-api-keys-id",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "x-internal": true
       }
     }
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "User": {
         "type": "object",
+        "x-examples": {
+          "example-1": {
+            "uuid": "c44f58bd-dab9-49a5-8f47-39a2f98b33bf",
+            "name": "Albin Nilsson",
+            "email": "albin@sajnat.se",
+            "first_name": "Albin",
+            "last_name": "Nilsson",
+            "role_list": [
+              "administrator"
+            ],
+            "timezone": "Europe/Stockholm",
+            "locale": "sv",
+            "tenant_id": 878212,
+            "subscribed": true,
+            "jailed": false,
+            "has_pending_invite": false,
+            "env": "production",
+            "updated_at": "2022-04-29T04:13:21.000000Z",
+            "created_at": "2022-04-21T06:23:39.000000Z",
+            "email_verified_at": "2022-04-28 06:44:55"
+          }
+        },
+        "description": "",
+        "title": "",
+        "examples": [
+          {
+            "uuid": "c44f58bd-dab9-49a5-8f47-39a2f98b33bf",
+            "name": "Albin Nilsson",
+            "first_name": "Albin",
+            "last_name": "Nilsson",
+            "email": "albin@sajnat.se",
+            "role_list": [
+              "adminstrator"
+            ],
+            "timezone": "Europe/Stockholm",
+            "locale": "sv",
+            "tenant_uuid": "5a14d10f-364f-4a7e-8de9-e7de5623eaaf",
+            "subscribed": true,
+            "jailed": false,
+            "has_pending_invite": false,
+            "env": "test",
+            "updated_at": "2019-08-24T14:15:22Z",
+            "created_at": "2019-08-24T14:15:22Z",
+            "email_verified_at": "2019-08-24T14:15:22Z"
+          }
+        ],
         "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "example": "c44f58bd-dab9-49a5-8f47-39a2f98b33bf"
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
+          "name": {
+            "type": "string",
+            "example": "Albin Nilsson"
+          },
+          "first_name": {
+            "type": "string",
+            "readOnly": true
+          },
+          "last_name": {
+            "type": "string",
+            "readOnly": true
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "role_list": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "default": "adminstrator",
+              "readOnly": true
+            },
+            "readOnly": true
+          },
+          "timezone": {
+            "type": "string",
+            "example": "Europe/Stockholm"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "sv"
+            ],
+            "example": "sv"
+          },
+          "tenant_uuid": {
+            "type": "string",
+            "format": "uuid",
+            "example": "5a14d10f-364f-4a7e-8de9-e7de5623eaaf",
+            "readOnly": true
+          },
+          "subscribed": {
+            "type": "boolean",
+            "default": true,
+            "readOnly": true
+          },
+          "jailed": {
+            "type": "boolean",
+            "default": false,
+            "readOnly": true
+          },
+          "has_pending_invite": {
+            "type": "boolean",
+            "default": false,
+            "readOnly": true
+          },
+          "env": {
+            "type": "string",
+            "example": "test",
+            "enum": [
+              "test",
+              "production"
+            ],
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "email_verified_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        },
+        "x-tags": [
+          "Users"
+        ]
+      },
+      "Tenant": {
+        "type": "object",
+        "x-examples": {
+          "example-1": {
+            "name": "Sajnat Sweden AB",
+            "contact_email": "",
+            "contact_person": "",
+            "org_number": "559247-3135",
+            "billing_address": "Möllerikevägen 1",
+            "billing_post_code": "241 96",
+            "billing_city": "Stockamöllan",
+            "billing_country": "Sverige",
+            "primary_user_id": 1,
+            "options": {
+              "agreements": {
+                "automatic_reminders": true
+              }
+            },
+            "subscribed": true,
+            "on_grace_period": false,
+            "logo": "logos/sajnat-sweden-ab2310.png",
+            "logo_url": "https://sajnat-media.s3.eu-north-1.amazonaws.com/logos/sajnat-sweden-ab2310.png",
+            "cancelled_at": null,
+            "days_until_deletion": 0,
+            "jailed": false,
+            "created_at": "2022-04-21T06:23:01.000000Z",
+            "updated_at": "2022-06-01T10:28:07.000000Z"
+          }
+        },
+        "examples": [],
+        "description": "",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "example": "5a14d10f-364f-4a7e-8de9-e7de5623eaaf",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Sajnat Sweden AB"
+          },
+          "contact_email": {
+            "type": "string",
+            "example": "albin@sajnat.se"
+          },
+          "contact_person": {
+            "type": "string",
+            "example": "Albin Nilsson"
+          },
+          "org_number": {
+            "type": "string",
+            "example": "559247-3135"
+          },
+          "billing_address": {
+            "type": "string",
+            "example": "Möllerikevägen 1"
+          },
+          "billing_post_code": {
+            "type": "string",
+            "example": "241 96"
+          },
+          "billing_city": {
+            "type": "string",
+            "example": "Stockamöllan"
+          },
+          "billing_country": {
+            "type": "string",
+            "example": "Sverige"
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "agreements": {
+                "type": "object",
+                "properties": {
+                  "automatic_reminders": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          },
+          "subscribed": {
+            "type": "boolean",
+            "default": true
+          },
+          "on_grace_period": {
+            "type": "boolean",
+            "default": false
+          },
+          "logo_url": {
+            "type": "string",
+            "example": "https://media.sajnat.se/logos/sajnat-sweden-ab2310.png"
+          },
+          "cancelled_at": {
+            "type": "null"
+          },
+          "days_until_deletion": {
+            "type": "integer"
+          },
+          "jailed": {
+            "type": "boolean",
+            "default": false
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-08-24T14:15:22Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-08-24T14:18:22Z"
+          }
+        },
+        "x-tags": [
+          "Tenants"
+        ]
+      },
+      "Document": {
+        "type": "object",
+        "x-examples": {
+          "example-1": {
+            "uuid": "58a97e35-6ce9-47f0-9094-b95eca9253ed",
+            "name": "NDA Ikoncept",
+            "short_name": "NDA Ikoncept",
+            "options": {
+              "automatic_reminders": true,
+              "specific_sign_order": false
+            },
+            "status": "sent",
+            "is_valid": false,
+            "signed_by_creator": false,
+            "signature_type_id": 2,
+            "signature_term": "bank_id",
+            "finger_print": "05a23f46",
+            "locale": "sv",
+            "private": false,
+            "created_by": 1,
+            "updated_at": "2022-06-06T11:59:14.000000Z",
+            "created_at": "2022-06-06T11:55:13.000000Z",
+            "sent_at": "2022-06-06T11:59:14.000000Z",
+            "user_tz": "2022-06-06 13:55:13 CEST",
+            "agreement_document_name": "NDA Ikoncept.pdf",
+            "agreement_thumbnail": "https://sajnat-document-images.s3.eu-north-1.amazonaws.com/agreements/f2c31ea1-a9cd-4c36-be6f-872f30eb5241/tmp58a97e35-6ce9-47f0-9094-b95eca9253ed-thumb.png?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA6QWCPHZ5ID5WFI7G%2F20220607%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20220607T130316Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Signature=727aa063320cb8766ce7591bd45e1250d83668bd0be75a152682aec99ced7529",
+            "_links": [
+              {
+                "rel": "self",
+                "uri": "/api/agreements/58a97e35-6ce9-47f0-9094-b95eca9253ed"
+              }
+            ],
+            "tags": {
+              "data": [
+                {
+                  "id": 3,
+                  "name": "NDA",
+                  "text": "NDA",
+                  "value": 3,
+                  "type": null
+                }
+              ]
+            }
+          }
+        },
+        "examples": [],
+        "description": "A document is the center of everything. It can have attached media, such as pdfs or images, subjects and signature requests etc.\n\nThe different statuses are as follows\n\n* `draft` - Newly created documents that has no been processed\n* `processing` - Documents that are being processed\n* `idle` - Documents that has been processed\n* `sent` - Documents that has been sent (re-processing or uploading new files are not allowed)\n* `sealed` - All parties have signed the document (re-processing or uploading new files are not allowed)",
+        "title": "",
+        "x-tags": [
+          "Documents"
+        ],
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "example": "3747e6c5-a0e0-41e2-8381-aff3fbfbf0b4",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "example": "NDA document"
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "automatic_reminders": {
+                "type": "boolean",
+                "default": true
+              },
+              "specific_sign_order": {
+                "type": "boolean",
+                "default": true
+              }
+            },
+            "readOnly": true
+          },
+          "default_signature_type": {
+            "type": "string",
+            "enum": [
+              "aes",
+              "ses"
+            ],
+            "example": "aes"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "sent",
+              "draft",
+              "sealed",
+              "idle"
+            ],
+            "example": "sent",
+            "default": "draft",
+            "readOnly": true
+          },
+          "signature_term": {
+            "type": "string",
+            "default": "ses",
+            "readOnly": true
+          },
+          "finger_print": {
+            "type": "string",
+            "example": "05a23f46",
+            "readOnly": true
+          },
+          "locale": {
+            "type": "string",
+            "example": "sv",
+            "enum": [
+              "en",
+              "sv"
+            ]
+          },
+          "private": {
+            "type": "boolean",
+            "default": true
+          },
+          "expires_at": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "default": null,
+            "format": "date-time"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid",
+            "example": "c4e10d4c-167f-45d9-a318-51c3c9bc913e",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "sent_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "agreement_document_name": {
+            "type": "string",
+            "example": "NDA document.pdf",
+            "readOnly": true
+          },
+          "agreement_thumbnail": {
+            "type": "string",
+            "format": "url",
+            "readOnly": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "writeOnly": true
           }
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+      "Tag": {
+        "type": "object",
+        "x-examples": {
+          "example-1": {
+            "id": 3,
+            "name": "NDA",
+            "text": "NDA",
+            "value": 3,
+            "type": null
+          }
+        },
+        "properties": {
+          "id": {
+            "type": "integer"
           },
+          "name": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "value": {
+            "type": "integer"
+          },
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "examples": [
           {
-            "required": [
-              "id"
+            "id": 921,
+            "name": "NDA",
+            "text": "NDA",
+            "value": 921,
+            "type": null
+          }
+        ],
+        "description": "",
+        "x-tags": [
+          "Tags"
+        ]
+      },
+      "Media": {
+        "type": "object",
+        "x-examples": {
+          "example-1": {
+            "id": 1271,
+            "uuid": "0e362cdc-a00e-434f-904d-b15a166b7b13",
+            "collection": "original_agreement",
+            "name": "xe5rybdex669.pdf",
+            "file_name": "xe5rybdex669.pdf",
+            "mime_type": "application/pdf",
+            "size": 614588,
+            "order_column": 759,
+            "alt_text": "",
+            "width": "",
+            "height": "",
+            "srcset": "https://sajnat-documents-stage.s3.eu-north-1.amazonaws.com/agreements/0e362cdc-a00e-434f-904d-b15a166b7b13/xe5rybdex669.pdf?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA6QWCPHZ5E25HVJ5D%2F20220608%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20220608T125747Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Signature=d34217f5f6ecae48580213fc27d5e92ba0f2b1dc84e6b2ccb784de256bded6e9 w, ",
+            "url": "https://sajnat-documents-stage.s3.eu-north-1.amazonaws.com/agreements/0e362cdc-a00e-434f-904d-b15a166b7b13/xe5rybdex669.pdf?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA6QWCPHZ5E25HVJ5D%2F20220608%2Feu-north-1%2Fs3%2Faws4_request&X-Amz-Date=20220608T125747Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Signature=d34217f5f6ecae48580213fc27d5e92ba0f2b1dc84e6b2ccb784de256bded6e9"
+          }
+        },
+        "title": "",
+        "description": "Media representation. Could be a pdf document, image or other file types",
+        "examples": [
+          {
+            "uuid": "719bdf78-95fe-44fa-b67f-2e31278996c6",
+            "collection": "original_agreement",
+            "name": "Document.pdf",
+            "file_name": "string",
+            "mime_type": "application/pdf",
+            "size": 50900,
+            "order_column": 1,
+            "alt_text": "PDF document",
+            "width": 1584,
+            "height": 1224,
+            "srcset": "string",
+            "url": "https://sajnat-documents-stage.s3.eu-north-1.amazonaws.com/agreements/0e362cdc-a00e-434f-904d-b15a166b7b13/xe5rybdex669.pdf"
+          }
+        ],
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "example": "719bdf78-95fe-44fa-b67f-2e31278996c6"
+          },
+          "collection": {
+            "type": "string",
+            "enum": [
+              "agreements",
+              "sealed_agreements",
+              "appendices",
+              "original_agreement",
+              "thumbnail",
+              "agreement_pages"
             ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
+            "example": "original_agreement"
+          },
+          "file_name": {
+            "type": "string",
+            "example": "document.pdf"
+          },
+          "mime_type": {
+            "type": "string",
+            "example": "application/pdf"
+          },
+          "size": {
+            "type": "integer",
+            "example": 50900
+          },
+          "order_column": {
+            "type": "integer",
+            "example": 1
+          },
+          "alt_text": {
+            "type": "string",
+            "example": "PDF document"
+          },
+          "width": {
+            "type": "integer",
+            "example": 1584
+          },
+          "height": {
+            "type": "integer",
+            "example": 1224
+          },
+          "srcset": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://sajnat-documents-stage.s3.eu-north-1.amazonaws.com/agreements/0e362cdc-a00e-434f-904d-b15a166b7b13/xe5rybdex669.pdf"
+          }
+        },
+        "x-tags": [
+          "Media"
+        ]
+      },
+      "Subject": {
+        "type": "object",
+        "x-examples": {
+          "example-1": {
+            "uuid": "09a860c2-8779-474f-a86d-36a7dc467ab9",
+            "ssn": "",
+            "first_name": "Albin",
+            "last_name": "Nilsson",
+            "full_name": "Albin Nilsson",
+            "email": "albin@sajnat.se",
+            "phone": null,
+            "has_company": false,
+            "company": "",
+            "locale": "sv",
+            "updated_at": "2022-06-04T07:11:24.000000Z",
+            "created_at": "2022-06-04T07:11:24.000000Z",
+            "pivot": {
+              "agreement_id": 69,
+              "subject_id": 61,
+              "id": 61,
+              "order_column": 53,
+              "created_at": "2022-06-04T07:11:24.000000Z",
+              "updated_at": "2022-06-04T07:11:24.000000Z"
+            },
+            "signatureRequest": {
+              "data": {
+                "uuid": "6bd729e5-875f-474d-a0f6-db938719625a",
+                "signed": true,
+                "options": {
+                  "body": "Hej Albin!\n\nDu har mottagit ett digitalt dokument för granskning.\nKlicka på knappen för att öppna dokumentet.",
+                  "subject": "Signeringsförfrågan"
+                },
+                "signature_type_id": 2,
+                "signature_term": "bank_id",
+                "timeline": [
+                  {
+                    "type": "signature_request_sent",
+                    "completed": true,
+                    "error": false,
+                    "hidden": false,
+                    "created_at": "2022-06-04T07:11:37.000000Z",
+                    "completed_at": "2022-06-04T07:11:37.000000Z",
+                    "completed_at_tz": "2022-06-04 09:11 CEST",
+                    "completed_text": "Skickat",
+                    "not_complete_text": "Inte skickat",
+                    "activity": {
+                      "id": 996,
+                      "log_name": "default",
+                      "description": "signature_request_sent",
+                      "subject_id": 61,
+                      "subject_type": "App\\Models\\SignatureRequest",
+                      "event": null,
+                      "causer_id": null,
+                      "causer_type": null,
+                      "properties": {
+                        "receiver": "albin@sajnat.se",
+                        "agreement": "343b7cfd-5aef-4411-b768-1a088f5c78dd"
+                      },
+                      "batch_uuid": null,
+                      "created_at": "2022-06-04T07:11:37.000000Z",
+                      "updated_at": "2022-06-04T07:11:37.000000Z",
+                      "created_at_tz": "2022-06-04 09:11 CEST",
+                      "subject": {
+                        "id": 61,
+                        "uuid": "6bd729e5-875f-474d-a0f6-db938719625a",
+                        "agreement_id": 69,
+                        "subject_id": 61,
+                        "signature_type_id": 2,
+                        "signature_id": 47,
+                        "sent_at": "2022-06-04T07:11:37.000000Z",
+                        "reminder_sent_at": null,
+                        "bounced_at": null,
+                        "received_at": "2022-06-04T07:11:40.000000Z",
+                        "read_at": "2022-06-04T07:14:19.000000Z",
+                        "visited_at": null,
+                        "signed_at": "2022-06-04T07:12:43.000000Z",
+                        "options": {
+                          "body": "Hej Albin!\n\nDu har mottagit ett digitalt dokument för granskning.\nKlicka på knappen för att öppna dokumentet.",
+                          "subject": "Signeringsförfrågan"
+                        },
+                        "locale": "sv",
+                        "created_at": "2022-06-04T07:11:24.000000Z",
+                        "updated_at": "2022-06-04T07:14:19.000000Z",
+                        "signature_type": {
+                          "id": 2,
+                          "name": "BankID",
+                          "term": "bank_id",
+                          "created_at": "2022-04-10T09:01:55.000000Z",
+                          "updated_at": "2022-04-10T09:01:55.000000Z"
+                        }
+                      },
+                      "causer": null
+                    }
+                  },
+                  {
+                    "type": "signature_request_reminder_sent",
+                    "completed": false,
+                    "hidden": true,
+                    "created_at": null,
+                    "completed_at": null,
+                    "completed_at_tz": null,
+                    "completed_text": "Påminnelse skickad",
+                    "not_complete_text": "Påminnelse ej skickad",
+                    "activity": null
+                  },
+                  {
+                    "type": "signature_request_received",
+                    "completed": true,
+                    "error": false,
+                    "created_at": "2022-06-04T07:11:40.000000Z",
+                    "completed_at": "2022-06-04T07:11:40.000000Z",
+                    "completed_at_tz": "2022-06-04 09:11 CEST",
+                    "completed_text": "Mottaget",
+                    "not_complete_text": "Inte mottaget",
+                    "activity": {
+                      "id": 1000,
+                      "log_name": "default",
+                      "description": "signature_request_received",
+                      "subject_id": 61,
+                      "subject_type": "App\\Models\\SignatureRequest",
+                      "event": null,
+                      "causer_id": null,
+                      "causer_type": null,
+                      "properties": {
+                        "signature": {
+                          "token": "7f5221ab718bb71eb7db48eb358bc402c94048d3127e764b86",
+                          "signature": "3628e330aab2afb779b47b2dc35c0913e58e081fdd3b514c14573f3879efd82d",
+                          "timestamp": "1654326700"
+                        },
+                        "event-data": {
+                          "id": "tFOKi7vXQFmQMZ9p0mI_5g",
+                          "tags": [],
+                          "event": "delivered",
+                          "flags": {
+                            "is-routed": false,
+                            "is-test-mode": false,
+                            "is-system-test": false,
+                            "is-authenticated": true
+                          },
+                          "message": {
+                            "size": 245099,
+                            "headers": {
+                              "to": "albin@sajnat.se",
+                              "from": "\"Sajnat.se\" <no-reply@mg.stage.sajnat.se>",
+                              "subject": "Signeringsförfrågan - Med hash - Sajnat",
+                              "message-id": "d3630e641bec043f224474d1087e83d0@mg.stage.sajnat.se"
+                            },
+                            "attachments": []
+                          },
+                          "storage": {
+                            "key": "AwAEBZSwN171vYf9HIJKjIPQO2_vBZyyZA==",
+                            "url": "https://storage.eu.mailgun.net/v3/domains/mg.stage.sajnat.se/messages/AwAEBZSwN171vYf9HIJKjIPQO2_vBZyyZA=="
+                          },
+                          "envelope": {
+                            "sender": "postmaster@mg.stage.sajnat.se",
+                            "targets": "albin@sajnat.se",
+                            "transport": "smtp",
+                            "sending-ip": "141.193.32.23"
+                          },
+                          "campaigns": [],
+                          "log-level": "info",
+                          "recipient": "albin@sajnat.se",
+                          "timestamp": 1654326700.804541,
+                          "user-variables": {
+                            "tenant_id": 2200,
+                            "signature_request_uuid": "6bd729e5-875f-474d-a0f6-db938719625a"
+                          },
+                          "delivery-status": {
+                            "tls": true,
+                            "code": 250,
+                            "message": "OK",
+                            "mx-host": "mx01.glesys.se",
+                            "attempt-no": 1,
+                            "description": null,
+                            "session-seconds": 1.6511399745941162,
+                            "certificate-verified": true
+                          },
+                          "recipient-domain": "sajnat.se"
+                        }
+                      },
+                      "batch_uuid": null,
+                      "created_at": "2022-06-04T07:11:40.000000Z",
+                      "updated_at": "2022-06-04T07:11:40.000000Z",
+                      "created_at_tz": "2022-06-04 09:11 CEST",
+                      "subject": {
+                        "id": 61,
+                        "uuid": "6bd729e5-875f-474d-a0f6-db938719625a",
+                        "agreement_id": 69,
+                        "subject_id": 61,
+                        "signature_type_id": 2,
+                        "signature_id": 47,
+                        "sent_at": "2022-06-04T07:11:37.000000Z",
+                        "reminder_sent_at": null,
+                        "bounced_at": null,
+                        "received_at": "2022-06-04T07:11:40.000000Z",
+                        "read_at": "2022-06-04T07:14:19.000000Z",
+                        "visited_at": null,
+                        "signed_at": "2022-06-04T07:12:43.000000Z",
+                        "options": {
+                          "body": "Hej Albin!\n\nDu har mottagit ett digitalt dokument för granskning.\nKlicka på knappen för att öppna dokumentet.",
+                          "subject": "Signeringsförfrågan"
+                        },
+                        "locale": "sv",
+                        "created_at": "2022-06-04T07:11:24.000000Z",
+                        "updated_at": "2022-06-04T07:14:19.000000Z",
+                        "signature_type": {
+                          "id": 2,
+                          "name": "BankID",
+                          "term": "bank_id",
+                          "created_at": "2022-04-10T09:01:55.000000Z",
+                          "updated_at": "2022-04-10T09:01:55.000000Z"
+                        }
+                      },
+                      "causer": null
+                    }
+                  },
+                  {
+                    "type": "signature_request_read",
+                    "completed": true,
+                    "error": false,
+                    "hidden": false,
+                    "created_at": "2022-06-04T07:14:19.000000Z",
+                    "completed_at": "2022-06-04T07:14:19.000000Z",
+                    "completed_at_tz": "2022-06-04 09:14 CEST",
+                    "completed_text": "Läst",
+                    "not_complete_text": "Inte läst",
+                    "activity": {
+                      "id": 1004,
+                      "log_name": "default",
+                      "description": "signature_request_read",
+                      "subject_id": 61,
+                      "subject_type": "App\\Models\\SignatureRequest",
+                      "event": null,
+                      "causer_id": 4,
+                      "causer_type": "App\\Models\\User",
+                      "properties": {
+                        "ip": "80.68.103.135",
+                        "agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36",
+                        "request_params": {
+                          "include": "agreementPages,subjects,subjects.signatureRequest",
+                          "signature": "80fe30af5db164780c136e0683652166e6c4cd86b78afee16f7c5a413f6e8827"
+                        }
+                      },
+                      "batch_uuid": null,
+                      "created_at": "2022-06-04T07:14:19.000000Z",
+                      "updated_at": "2022-06-04T07:14:19.000000Z",
+                      "created_at_tz": "2022-06-04 09:14 CEST",
+                      "subject": {
+                        "id": 61,
+                        "uuid": "6bd729e5-875f-474d-a0f6-db938719625a",
+                        "agreement_id": 69,
+                        "subject_id": 61,
+                        "signature_type_id": 2,
+                        "signature_id": 47,
+                        "sent_at": "2022-06-04T07:11:37.000000Z",
+                        "reminder_sent_at": null,
+                        "bounced_at": null,
+                        "received_at": "2022-06-04T07:11:40.000000Z",
+                        "read_at": "2022-06-04T07:14:19.000000Z",
+                        "visited_at": null,
+                        "signed_at": "2022-06-04T07:12:43.000000Z",
+                        "options": {
+                          "body": "Hej Albin!\n\nDu har mottagit ett digitalt dokument för granskning.\nKlicka på knappen för att öppna dokumentet.",
+                          "subject": "Signeringsförfrågan"
+                        },
+                        "locale": "sv",
+                        "created_at": "2022-06-04T07:11:24.000000Z",
+                        "updated_at": "2022-06-04T07:14:19.000000Z",
+                        "signature_type": {
+                          "id": 2,
+                          "name": "BankID",
+                          "term": "bank_id",
+                          "created_at": "2022-04-10T09:01:55.000000Z",
+                          "updated_at": "2022-04-10T09:01:55.000000Z"
+                        }
+                      },
+                      "causer": {
+                        "id": 4,
+                        "name": "Albin Nilsson",
+                        "email": "albin@sajnat.se",
+                        "email_verified_at": "2022-04-10T10:00:39.000000Z",
+                        "two_factor_secret": null,
+                        "two_factor_recovery_codes": null,
+                        "tenant_id": 2200,
+                        "created_at": "2022-04-10T09:02:26.000000Z",
+                        "updated_at": "2022-04-27T18:36:26.000000Z"
+                      }
+                    }
+                  },
+                  {
+                    "type": "signature_request_signed",
+                    "completed": true,
+                    "error": false,
+                    "hidden": false,
+                    "created_at": "2022-06-04T07:12:43.000000Z",
+                    "completed_at": "2022-06-04T07:12:43.000000Z",
+                    "completed_at_tz": "2022-06-04 09:12 CEST",
+                    "completed_text": "Signerat",
+                    "not_complete_text": "Inte signerat",
+                    "activity": {
+                      "id": 1002,
+                      "log_name": "default",
+                      "description": "signature_request_signed",
+                      "subject_id": 61,
+                      "subject_type": "App\\Models\\SignatureRequest",
+                      "event": null,
+                      "causer_id": 4,
+                      "causer_type": "App\\Models\\User",
+                      "properties": [],
+                      "batch_uuid": null,
+                      "created_at": "2022-06-04T07:12:43.000000Z",
+                      "updated_at": "2022-06-04T07:12:43.000000Z",
+                      "created_at_tz": "2022-06-04 09:12 CEST",
+                      "subject": {
+                        "id": 61,
+                        "uuid": "6bd729e5-875f-474d-a0f6-db938719625a",
+                        "agreement_id": 69,
+                        "subject_id": 61,
+                        "signature_type_id": 2,
+                        "signature_id": 47,
+                        "sent_at": "2022-06-04T07:11:37.000000Z",
+                        "reminder_sent_at": null,
+                        "bounced_at": null,
+                        "received_at": "2022-06-04T07:11:40.000000Z",
+                        "read_at": "2022-06-04T07:14:19.000000Z",
+                        "visited_at": null,
+                        "signed_at": "2022-06-04T07:12:43.000000Z",
+                        "options": {
+                          "body": "Hej Albin!\n\nDu har mottagit ett digitalt dokument för granskning.\nKlicka på knappen för att öppna dokumentet.",
+                          "subject": "Signeringsförfrågan"
+                        },
+                        "locale": "sv",
+                        "created_at": "2022-06-04T07:11:24.000000Z",
+                        "updated_at": "2022-06-04T07:14:19.000000Z",
+                        "signature_type": {
+                          "id": 2,
+                          "name": "BankID",
+                          "term": "bank_id",
+                          "created_at": "2022-04-10T09:01:55.000000Z",
+                          "updated_at": "2022-04-10T09:01:55.000000Z"
+                        }
+                      },
+                      "causer": {
+                        "id": 4,
+                        "name": "Albin Nilsson",
+                        "email": "albin@sajnat.se",
+                        "email_verified_at": "2022-04-10T10:00:39.000000Z",
+                        "two_factor_secret": null,
+                        "two_factor_recovery_codes": null,
+                        "tenant_id": 2200,
+                        "created_at": "2022-04-10T09:02:26.000000Z",
+                        "updated_at": "2022-04-27T18:36:26.000000Z"
+                      }
+                    }
+                  }
+                ],
+                "reminder_sent_at": null,
+                "reminder_sent_at_tz": null,
+                "locale": "sv",
+                "status": "complete",
+                "updated_at": "2022-06-04T07:14:19.000000Z",
+                "created_at": "2022-06-04T07:11:24.000000Z"
               }
             }
           }
+        },
+        "description": "A subject is attached to a `document`. A subject is what receives a signature request. A subject is always attached to a `SignatureRequest`",
+        "examples": [],
+        "x-tags": [
+          "Subjects"
+        ],
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "example": "32f194d0-d18c-4174-abca-0b1ff50d0b03",
+            "readOnly": true
+          },
+          "first_name": {
+            "type": "string",
+            "example": "Albin"
+          },
+          "last_name": {
+            "type": "string",
+            "example": "Nilsson"
+          },
+          "full_name": {
+            "type": "string",
+            "readOnly": true
+          },
+          "has_company": {
+            "type": "boolean",
+            "default": false
+          },
+          "email": {
+            "type": "string",
+            "example": "albin@sajnat.se",
+            "format": "email"
+          },
+          "company": {
+            "type": "string",
+            "example": "Sajnat Sweden AB"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "sv",
+              "en"
+            ],
+            "example": "sv"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        },
+        "required": [
+          "first_name",
+          "last_name",
+          "has_company",
+          "email",
+          "locale"
         ]
       },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
+      "SignatureRequest": {
         "type": "object",
+        "x-examples": {
+          "example-1": {
+            "uuid": "78239d74-05b9-43bc-b267-483c9f7d9637",
+            "signed": false,
+            "options": {
+              "body": "Hej Albin!\n\nDu har mottagit ett digitalt dokument för granskning.\nKlicka på knappen för att öppna dokumentet.",
+              "subject": "Signeringsförfrågan"
+            },
+            "signature_type_id": 2,
+            "signature_term": "bank_id",
+            "timeline": [
+              {
+                "type": "signature_request_sent",
+                "completed": false,
+                "error": false,
+                "hidden": false,
+                "created_at": null,
+                "completed_at": null,
+                "completed_at_tz": null,
+                "completed_text": "Skickat",
+                "not_complete_text": "Inte skickat",
+                "activity": null
+              },
+              {
+                "type": "signature_request_reminder_sent",
+                "completed": false,
+                "hidden": true,
+                "created_at": null,
+                "completed_at": null,
+                "completed_at_tz": null,
+                "completed_text": "Påminnelse skickad",
+                "not_complete_text": "Påminnelse ej skickad",
+                "activity": null
+              },
+              {
+                "type": "signature_request_received",
+                "completed": false,
+                "error": false,
+                "created_at": null,
+                "completed_at": null,
+                "completed_at_tz": null,
+                "completed_text": "Mottaget",
+                "not_complete_text": "Inte mottaget",
+                "activity": null
+              },
+              {
+                "type": "signature_request_read",
+                "completed": false,
+                "error": false,
+                "hidden": false,
+                "created_at": null,
+                "completed_at": null,
+                "completed_at_tz": null,
+                "completed_text": "Läst",
+                "not_complete_text": "Inte läst",
+                "activity": null
+              },
+              {
+                "type": "signature_request_signed",
+                "completed": false,
+                "error": false,
+                "hidden": false,
+                "created_at": null,
+                "completed_at": null,
+                "completed_at_tz": null,
+                "completed_text": "Signerat",
+                "not_complete_text": "Inte signerat",
+                "activity": null
+              }
+            ],
+            "reminder_sent_at": null,
+            "reminder_sent_at_tz": null,
+            "locale": "sv",
+            "status": "not_sent",
+            "updated_at": "2022-06-08T06:50:12.000000Z",
+            "created_at": "2022-06-08T06:50:12.000000Z"
+          }
+        },
+        "examples": [],
+        "title": "SignatureRequest",
+        "x-tags": [
+          "Signature requests"
+        ],
+        "description": "",
         "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "example": "1e26d2c9-61d9-4ae0-b527-c9a73987efc0",
+            "readOnly": true
           },
-          "message": {
-            "type": "string"
+          "signed": {
+            "type": "boolean",
+            "default": false,
+            "readOnly": true
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "body": {
+                "type": "string",
+                "default": "Hej Albin!\\n\\nDu har mottagit ett digitalt dokument för granskning.\\nKlicka på knappen för att öppna dokumentet.",
+                "example": "Hej Albin!\\n\\nDu har mottagit ett digitalt dokument för granskning.\\nKlicka på knappen för att öppna dokumentet."
+              }
+            }
+          },
+          "signature_type": {
+            "type": "string",
+            "enum": [
+              "ses",
+              "aes"
+            ],
+            "example": "ses"
+          },
+          "reminder_sent_at": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time",
+            "readOnly": true
+          },
+          "reminder_sent_at_tz": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time",
+            "readOnly": true
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "sv",
+              "en"
+            ],
+            "example": "sv"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "not_sent",
+              "error",
+              "attention",
+              "waiting",
+              "complete"
+            ],
+            "example": "not_sent",
+            "default": "not_sent",
+            "readOnly": true
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "timeline": {
+            "$ref": "#/components/schemas/SignatureRequestTimeline"
+          }
+        }
+      },
+      "SignatureRequestTimelineItem": {
+        "type": "object",
+        "x-examples": {
+          "example-1": {
+            "type": "string",
+            "completed": true,
+            "error": true,
+            "hidden": true,
+            "created_at": "string",
+            "completed_at": "string",
+            "completed_at_tz": "string",
+            "completed_text": "string",
+            "not_complete_text": "string"
+          }
+        },
+        "description": "A timeline item defines an action that has occured or has not occurred yet",
+        "examples": [
+          {
+            "type": "signature_request_sent",
+            "completed": false,
+            "error": false,
+            "hidden": false,
+            "created_at": "2019-08-24T14:15:22Z",
+            "completed_at": "2019-08-24T14:15:22Z",
+            "completed_at_tz": "2019-08-24T14:15:22Z",
+            "completed_text": "Sent",
+            "not_complete_text": "Not sent"
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "signature_request_sent",
+            "enum": [
+              "signature_request_sent",
+              "signature_request_reminder_sent",
+              "signature_request_bounced",
+              "signature_request_received",
+              "signature_request_read",
+              "signature_request_visited",
+              "signature_request_signed"
+            ],
+            "readOnly": true
+          },
+          "completed": {
+            "type": "boolean",
+            "default": false,
+            "readOnly": true
+          },
+          "error": {
+            "type": "boolean",
+            "default": false,
+            "readOnly": true
+          },
+          "hidden": {
+            "type": "boolean",
+            "default": false,
+            "readOnly": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "completed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "readOnly": true
+          },
+          "completed_at_tz": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "readOnly": true
+          },
+          "completed_text": {
+            "type": "string",
+            "example": "Sent",
+            "readOnly": true
+          },
+          "not_complete_text": {
+            "type": "string",
+            "example": "Not sent",
+            "readOnly": true
+          }
+        }
+      },
+      "SignatureRequestTimeline": {
+        "title": "SignatureRequestTimeline",
+        "x-stoplight": {
+          "id": "1f4sz6bv7qq37"
+        },
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/SignatureRequestTimelineItem"
+        },
+        "description": "An ordered array of timeline items",
+        "examples": [
+          [
+            {
+              "type": "signature_request_sent",
+              "completed": true,
+              "error": false,
+              "hidden": false,
+              "created_at": "2019-08-24T14:15:22Z",
+              "completed_at": "2019-08-24T14:15:22Z",
+              "completed_at_tz": "2019-08-24T14:15:22Z",
+              "completed_text": "Sent",
+              "not_complete_text": "Not sent"
+            },
+            {
+              "type": "signature_request_reminder_sent",
+              "completed": false,
+              "error": false,
+              "hidden": false,
+              "created_at": "2019-08-24T14:15:22Z",
+              "completed_at": null,
+              "completed_at_tz": null,
+              "completed_text": "Reminder sent",
+              "not_complete_text": "Reminder not sent"
+            },
+            {
+              "type": "signature_request_received",
+              "completed": true,
+              "error": false,
+              "hidden": false,
+              "created_at": "2019-08-24T14:15:22Z",
+              "completed_at": "2019-08-24T14:15:22Z",
+              "completed_at_tz": "2019-08-24T14:15:22Z",
+              "completed_text": "Received",
+              "not_complete_text": "Not received"
+            },
+            {
+              "type": "signature_request_read",
+              "completed": true,
+              "error": false,
+              "hidden": false,
+              "created_at": "2019-08-24T14:15:22Z",
+              "completed_at": "2019-08-24T14:15:22Z",
+              "completed_at_tz": "2019-08-24T14:15:22Z",
+              "completed_text": "Read",
+              "not_complete_text": "Not read"
+            },
+            {
+              "type": "signature_request_read",
+              "completed": true,
+              "error": false,
+              "hidden": false,
+              "created_at": "2019-08-24T14:15:22Z",
+              "completed_at": "2019-08-24T14:15:22Z",
+              "completed_at_tz": "2019-08-24T14:15:22Z",
+              "completed_text": "Read",
+              "not_complete_text": "Not read"
+            }
+          ],
+          [
+            {
+              "type": "signature_request_sent",
+              "completed": true,
+              "error": false,
+              "hidden": false,
+              "created_at": "2019-08-24T14:15:22Z",
+              "completed_at": "2019-08-24T14:15:22Z",
+              "completed_at_tz": "2019-08-24T14:15:22Z",
+              "completed_text": "Sent",
+              "not_complete_text": "Not sent"
+            },
+            {
+              "type": "signature_request_reminder_sent",
+              "completed": false,
+              "error": false,
+              "hidden": false,
+              "created_at": "2019-08-24T14:15:22Z",
+              "completed_at": null,
+              "completed_at_tz": null,
+              "completed_text": "Reminder sent",
+              "not_complete_text": "Reminder not sent"
+            },
+            {
+              "type": "signature_request_bounced",
+              "completed": true,
+              "error": true,
+              "hidden": false,
+              "created_at": "2019-08-24T14:15:22Z",
+              "completed_at": "2019-08-24T14:15:22Z",
+              "completed_at_tz": "2019-08-24T14:15:22Z",
+              "completed_text": "Received",
+              "not_complete_text": "Not received"
+            },
+            {
+              "type": "signature_request_read",
+              "completed": true,
+              "error": false,
+              "hidden": false,
+              "created_at": "2019-08-24T14:15:22Z",
+              "completed_at": "2019-08-24T14:15:22Z",
+              "completed_at_tz": "2019-08-24T14:15:22Z",
+              "completed_text": "Read",
+              "not_complete_text": "Not read"
+            },
+            {
+              "type": "signature_request_read",
+              "completed": true,
+              "error": false,
+              "hidden": false,
+              "created_at": "2019-08-24T14:15:22Z",
+              "completed_at": "2019-08-24T14:15:22Z",
+              "completed_at_tz": "2019-08-24T14:15:22Z",
+              "completed_text": "Read",
+              "not_complete_text": "Not read"
+            }
+          ]
+        ]
+      }
+    },
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": ""
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Successfull response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "x-examples": {
+                "example-1": {
+                  "code": "GEN-NOICE",
+                  "http_code": 200,
+                  "message": "Appendix has been deleted"
+                }
+              },
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "default": "GEN-NOICE",
+                  "readOnly": true
+                },
+                "http_code": {
+                  "type": "integer",
+                  "default": 200,
+                  "format": "int32",
+                  "readOnly": true
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad arguments",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "x-examples": {
+                "example-1": {
+                  "error": {
+                    "code": "GEN-FUBARGS",
+                    "http_code": 400,
+                    "message": "Can't delete subject, the document is locked"
+                  }
+                }
+              },
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "GEN-FUBARGS",
+                      "readOnly": true
+                    },
+                    "http_code": {
+                      "type": "integer",
+                      "example": 400,
+                      "format": "int32",
+                      "readOnly": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "readOnly": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Validation error response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "x-examples": {
+                "example-1": {
+                  "message": "First name är obligatoriskt.",
+                  "errors": {
+                    "first_name": [
+                      "First name är obligatoriskt."
+                    ]
+                  }
+                }
+              },
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "errors": {
+                  "type": "object",
+                  "properties": {
+                    "error_key": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "404-not-found": {
+        "description": "Generic 404 response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "x-examples": {
+                "example-1": {
+                  "type": "https://api.sajnat.se/errors/404",
+                  "title": "The specified resource could not be found",
+                  "detail": "The item with uuid was not found",
+                  "instance": "currentUrl"
+                }
+              },
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "format": "uri-reference"
+                },
+                "title": {
+                  "type": "string",
+                  "default": "The resource could not be found"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "instance": {
+                  "type": "string"
+                }
+              }
+            },
+            "examples": {
+              "example-1": {
+                "value": {
+                  "type": "string",
+                  "title": "string",
+                  "detail": "string",
+                  "instance": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Download-link": {
+        "description": "Example response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "base64_encoded_url": {
+                      "type": "string",
+                      "example": "aHR0cGE6Ly9hcGkuc2FqbmF0LnNlL2FwaS9zZWFsZWQtZG9jdW1lbnQvZWNlMDkwYWUtNjJkYS00NGU3LWI1NmUtZjYyYmY0ZTlmYTlkL2Rvd25sb2FkP2V4cGlyZXM9MTY1NjQwMzY2NSZ0ZW5hbnQ9NWRmNGRjNjMtOWRiOC00YzIxLThhNjctN2RkYTBhYTFiZThjJnNpZ25hdHVyZT0wOTMxYTI2ZTRhZGQ5ODhhZmE0YTJlMjkyYmYwNDQ1ZjQwYjZjMGMwNGUzYTZhNjNiNGY2MTkwODJlMmNhZmMz",
+                      "readOnly": true
+                    },
+                    "url": {
+                      "type": "string",
+                      "example": "https://api.sajnat.se/api/sealed-document/9f34e617-d555-4a0e-a47c-0342ddcc0313/download?expires=1656403582&tenant=29278a74-400c-47c6-853c-e616fd17322a&signature=61069b1f9f8dd1c3864dc0b9825fd0216a57d95e30914492487a4159734e3b24",
+                      "format": "uri",
+                      "readOnly": true
+                    },
+                    "expires": {
+                      "type": "integer",
+                      "example": 1656403557,
+                      "readOnly": true
+                    }
+                  },
+                  "readOnly": true
+                }
+              }
+            }
           }
         }
       }
     },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+    "parameters": {
+      "Accept": {
+        "name": "Accept",
+        "in": "header",
+        "schema": {
+          "type": "string",
+          "default": "application/json",
+          "example": "application/json"
+        },
+        "description": "Set the accept header to receive json responses"
+      },
+      "X-LOCALE": {
+        "name": "X-LOCALE",
+        "in": "header",
+        "schema": {
+          "type": "string",
+          "default": "en",
+          "enum": [
+            "en",
+            "sv"
+          ],
+          "example": "en"
+        },
+        "description": "Define which language responses should be in"
       }
     }
-  }
+  },
+  "security": [
+    {
+      "API Key - 1": []
+    }
+  ]
 }

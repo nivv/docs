@@ -81,6 +81,20 @@
         "api-reference/endpoint/create",
         "api-reference/endpoint/delete"
       ]
+    },
+    {
+      "group": "Documents",
+      "pages": [
+        "api-reference/documents/create-document",
+        "api-reference/documents/get-documents",
+        "api-reference/documents/get-document",
+        "api-reference/documents/update-document",
+        "api-reference/documents/delete-document",
+        "api-reference/documents/attach-files-to-a-document",
+        "api-reference/documents/process-document",
+        "api-reference/documents/send-signature-requests",
+        "api-reference/documents/get-a-download-link"
+      ]
     }
   ],
   "footerSocials": {
